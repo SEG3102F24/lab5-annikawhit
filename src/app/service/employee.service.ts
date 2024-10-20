@@ -1,19 +1,23 @@
-import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable} from "rxjs";
+import { Injectable, inject, OnInit } from '@angular/core';
+import {Observable} from "rxjs";
 import {Employee} from "../model/employee";
+import { EmployeeDbService } from '../firestore/employee-db.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EmployeeService {
-  employees$: BehaviorSubject<readonly Employee[]> = new BehaviorSubject<readonly Employee[]>([]);
+export class EmployeeService{
 
-  get $(): Observable<readonly Employee[]> {
-    return this.employees$;
+  employees$: Observable<Employee[]> = new Observable<Employee[]>;
+  currentEmployee: Employee | null = null;
+  private store: EmployeeDbService = inject(EmployeeDbService);
+  
+
+  getListOfEmployees(): Observable<Employee[]> {
+    return this.store.getEmployees();
   }
 
   addEmployee(employee: Employee) {
-    this.employees$.next([...this.employees$.getValue(), employee]);
-    return true;
+    this.store.createEmployee(employee);
   }
 }
